@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prototype SIMRS - Form Permintaan Gizi</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #0284c7;
+            --text-color: #334155;
+            --border-color: #cbd5e1;
+            --bg-color: #f8fafc;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background-color: #e2e8f0;
+            color: var(--text-color);
+            margin: 0;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .action-bar {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+
+        .btn-export {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-export:hover {
+            background-color: #0369a1;
+        }
+
+        #document-container {
+            background-color: white;
+            width: 100%;
+            max-width: 850px;
+            padding: 40px 50px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        .kop-surat {
+            text-align: center;
+            border-bottom: 3px solid var(--text-color);
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+
+        .kop-surat h1 {
+            margin: 0 0 5px 0;
+            font-size: 24px;
+            color: #0f172a;
+        }
+
+        .kop-surat p {
+            margin: 0;
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 18px;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+        }
+
+        h3 {
+            font-size: 14px;
+            background-color: var(--bg-color);
+            padding: 8px 12px;
+            border-left: 4px solid var(--primary-color);
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 150px 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .grid-2 div {
+            padding: 4px 0;
+            line-height: 1.6;
+        }
+
+        .input-line {
+            border-bottom: 1px dashed var(--border-color);
+            width: 100%;
+            display: inline-block;
+            min-height: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 13px;
+        }
+
+        th,
+        td {
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            vertical-align: top;
+        }
+
+        th {
+            background-color: var(--bg-color);
+            text-align: left;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .checkbox-item input {
+            margin-right: 8px;
+        }
+
+        .signature-area {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 50px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .signature-box {
+            width: 250px;
+        }
+
+        .signature-space {
+            height: 80px;
+        }
+
+        .signature-name {
+            border-bottom: 1px solid var(--text-color);
+            margin-bottom: 5px;
+        }
+
+        .input-text-keterangan {
+            border: none;
+            border-bottom: 1px solid #333;
+            background: transparent;
+            outline: none;
+            width: 100%;
+            max-width: 400px;
+            margin-left: 5px;
+            font-family: inherit;
+            font-size: 13px;
+        }
+
+        .lauk-opsi-container {
+            padding: 5px;
+        }
+
+        .catatan-sistem-row {
+            background-color: #fef2f2;
+            color: #dc2626;
+            font-weight: 600;
+            display: none;
+        }
+
+        .catatan-sistem-list {
+            margin: 5px 0 0 0;
+            padding-left: 20px;
+            font-weight: normal;
+        }
+
+        /* Styling baru untuk Grid Diet Opsi 4 Kolom */
+        #container-diet {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px 15px;
+            /* Jarak atas-bawah 8px, kiri-kanan 15px */
+            width: 100%;
+        }
+
+        .diet-option {
+            display: flex;
+            align-items: center;
+        }
+
+        .diet-option label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            margin: 0;
+        }
+
+        .diet-option input {
+            margin-right: 6px;
+        }
+
+        /* Flex container untuk menyejajarkan titik dua (:) dan grid diet */
+        .flex-row-align {
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .colon-separator {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="action-bar">
+        <button class="btn-export" onclick="exportPDF()">Unduh sebagai PDF</button>
+    </div>
+
+    <div id="document-container">
+        <div class="kop-surat">
+            <h1>RUMAH SAKIT BALI JIMBARAN</h1>
+            <p>Jl. Raya Kampus Unud No.52, Jimbaran, Kec. Kuta Sel., Kabupaten Badung, Bali 80361</p>
+            <p>Telp: (0361) 4725123 | Email: info@rsbalijimbaran.com</p>
+        </div>
+
+        <h2>Formulir Permintaan Makanan Pasien</h2>
+
+        <h3>A. DATA PASIEN</h3>
+        <div class="grid-2">
+            <div><strong>Nama Pasien</strong></div>
+            <div>: <span class="input-line"></span></div>
+            <div><strong>No. Rekam Medis</strong></div>
+            <div>: <span class="input-line"></span></div>
+            <div><strong>Ruang / Kamar</strong></div>
+            <div>: <span class="input-line"></span></div>
+            <div><strong>Diagnosis Medis</strong></div>
+            <div>: <span class="input-line"></span></div>
+        </div>
+
+        <h3>B. KONDISI KLINIS & ALERGI</h3>
+        <div class="grid-2">
+            <div><strong>Alergi Makanan</strong></div>
+            <div>: <label><input type="checkbox"> Tidak Ada</label> &nbsp;&nbsp; <label><input type="checkbox"> Ada:
+                    .............................</label></div>
+
+            <div><strong>Bentuk Makanan</strong></div>
+            <div>:
+                <label><input type="radio" name="bentuk_makanan" value="biasa" onchange="applyLogic()" checked>
+                    Biasa</label> &nbsp;
+                <label><input type="radio" name="bentuk_makanan" value="lunak" onchange="applyLogic()"> Lunak</label>
+                &nbsp;
+                <label><input type="radio" name="bentuk_makanan" value="saring" onchange="applyLogic()"> Saring</label>
+                &nbsp;
+                <label><input type="radio" name="bentuk_makanan" value="cair" onchange="applyLogic()"> Cair</label>
+            </div>
+
+            <div><strong>Diet</strong></div>
+            <div class="flex-row-align">
+                <span class="colon-separator">:</span>
+                <div id="container-diet">
+                    <span class="diet-option" id="wrap-diet-bebas"><label><input type="checkbox" id="diet-bebas"> Diet
+                            Bebas</label></span>
+                    <span class="diet-option" id="wrap-diet-lunak"><label><input type="checkbox" id="diet-lunak"
+                                onchange="applyLogic()"> Diet Lunak</label></span>
+                    <span class="diet-option" id="wrap-diet-rendah-gula"><label><input type="checkbox"
+                                id="diet-rendah-gula"> Diet Rendah Gula</label></span>
+                    <span class="diet-option" id="wrap-diet-rendah-garam"><label><input type="checkbox"
+                                id="diet-rendah-garam"> Diet Rendah Garam</label></span>
+                    <span class="diet-option" id="wrap-diet-rendah-protein"><label><input type="checkbox"
+                                id="diet-rendah-protein" onchange="applyLogic()"> Diet Rendah Protein</label></span>
+                    <span class="diet-option" id="wrap-diet-rendah-serat"><label><input type="checkbox"
+                                id="diet-rendah-serat" onchange="applyLogic()"> Diet Rendah Serat</label></span>
+                    <span class="diet-option" id="wrap-diet-lambung"><label><input type="checkbox" id="diet-lambung"
+                                onchange="applyLogic()"> Diet Lambung</label></span>
+                    <span class="diet-option" id="wrap-diet-tktp"><label><input type="checkbox" id="diet-tktp"> Diet
+                            TKTP</label></span>
+                    <span class="diet-option" id="wrap-diet-susu"><label><input type="checkbox" id="diet-susu"
+                                onchange="applyLogic()"> Diet Susu</label></span>
+                    <span class="diet-option" id="wrap-diet-cair-bebas"><label><input type="checkbox"
+                                id="diet-cair-bebas" onchange="applyLogic()"> Diet Cair Bebas</label></span>
+                </div>
+            </div>
+        </div>
+
+        <h3>C. PILIHAN MENU</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Kategori</th>
+                    <th>Makan Pagi</th>
+                    <th>Makan Siang</th>
+                    <th>Makan Malam</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr id="row-karbo">
+                    <td><strong>Karbohidrat</strong></td>
+                    <td>
+                        <div class="checkbox-item karbo-keras"><input type="checkbox"> Nasi Putih</div>
+                        <div class="checkbox-item"><input type="checkbox"> Bubur</div>
+                        <div class="checkbox-item"><input type="checkbox"> Mash Potato</div>
+                        <div class="checkbox-item karbo-keras"><input type="checkbox"> Jagung</div>
+                        <div class="checkbox-item karbo-keras"><input type="checkbox"> Ubi</div>
+                    </td>
+                    <td>
+                        <div class="checkbox-item karbo-keras"><input type="checkbox"> Nasi Putih</div>
+                        <div class="checkbox-item"><input type="checkbox"> Bubur</div>
+                        <div class="checkbox-item"><input type="checkbox"> Mash Potato</div>
+                        <div class="checkbox-item karbo-keras"><input type="checkbox"> Jagung</div>
+                        <div class="checkbox-item karbo-keras"><input type="checkbox"> Ubi</div>
+                    </td>
+                    <td>
+                        <div class="checkbox-item karbo-keras"><input type="checkbox"> Nasi Putih</div>
+                        <div class="checkbox-item"><input type="checkbox"> Bubur</div>
+                        <div class="checkbox-item"><input type="checkbox"> Mash Potato</div>
+                        <div class="checkbox-item karbo-keras"><input type="checkbox"> Jagung</div>
+                        <div class="checkbox-item karbo-keras"><input type="checkbox"> Ubi</div>
+                    </td>
+                </tr>
+
+                <tr id="row-lauk">
+                    <td><strong>Lauk Pauk</strong></td>
+                    <td colspan="3">
+                        <div class="lauk-opsi-container">
+                            <div class="checkbox-item">
+                                <input type="radio" name="opsi_lauk" id="lauk-standar" checked
+                                    onchange="toggleInputTambahan()">
+                                <label for="lauk-standar">Standar RS (Sesuai SOP Gizi)</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="radio" name="opsi_lauk" id="lauk-tambahan"
+                                    onchange="toggleInputTambahan()">
+                                <label for="lauk-tambahan" style="white-space: nowrap;">Opsi Tambahan
+                                    Keterangan:</label>
+                                <input type="text" id="input-keterangan" class="input-text-keterangan"
+                                    placeholder="Ketik keterangan lauk di sini..." style="display: none;">
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr id="row-saring" style="display: none; background-color: #fdf4ff;">
+                    <td><strong>Menu Saring</strong></td>
+                    <td>
+                        <div class="checkbox-item"><input type="checkbox"> Bubur Saring</div>
+                        <div class="checkbox-item"><input type="checkbox"> Bubur Tim</div>
+                        <div class="checkbox-item"><input type="checkbox"> Bubur Blender</div>
+                    </td>
+                    <td>
+                        <div class="checkbox-item"><input type="checkbox"> Bubur Saring</div>
+                        <div class="checkbox-item"><input type="checkbox"> Bubur Tim</div>
+                        <div class="checkbox-item"><input type="checkbox"> Bubur Blender</div>
+                    </td>
+                    <td>
+                        <div class="checkbox-item"><input type="checkbox"> Bubur Saring</div>
+                        <div class="checkbox-item"><input type="checkbox"> Bubur Tim</div>
+                        <div class="checkbox-item"><input type="checkbox"> Bubur Blender</div>
+                    </td>
+                </tr>
+
+                <tr id="row-cairan" style="display: none; background-color: #f0f9ff;">
+                    <td><strong>Cairan / Khusus</strong></td>
+                    <td colspan="3">
+                        <div class="menu-diet-susu" style="display: none;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                <div class="checkbox-item"><input type="checkbox"> Susu Ensure 6x 100 ml</div>
+                                <div class="checkbox-item"><input type="checkbox"> Susu Ensure 3x 100 ml</div>
+                                <div class="checkbox-item"><input type="checkbox"> Susu Ensure 6x 200 ml</div>
+                                <div class="checkbox-item"><input type="checkbox"> Susu Ensure 3x 200 ml</div>
+                                <div class="checkbox-item"><input type="checkbox"> Susu Entrasol 6x 100 ml</div>
+                                <div class="checkbox-item"><input type="checkbox"> Susu Entrasol 3x 100 ml</div>
+                                <div class="checkbox-item"><input type="checkbox"> Susu Entrasol 6x 200 ml</div>
+                                <div class="checkbox-item"><input type="checkbox"> Susu Entrasol 3x 200 ml</div>
+                                <div class="checkbox-item"><input type="checkbox"> Susu Diabetasol 6x 100 ml</div>
+                                <div class="checkbox-item"><input type="checkbox"> Susu Diabetasol 3x 100 ml</div>
+                                <div class="checkbox-item"><input type="checkbox"> Susu Diabetasol 6x 200 ml</div>
+                                <div class="checkbox-item"><input type="checkbox"> Susu Diabetasol 3x 200 ml</div>
+                            </div>
+                        </div>
+                        <div class="menu-diet-cair-bebas" style="display: none; margin-top: 15px;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                <div class="checkbox-item"><input type="checkbox"> Jus Buah 6x Sehari</div>
+                                <div class="checkbox-item"><input type="checkbox"> Jus Buah 3x Sehari</div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr id="row-catatan-sistem" class="catatan-sistem-row">
+                    <td colspan="4">
+                        Perhatian (Catatan Sistem):
+                        <ul class="catatan-sistem-list">
+                            <li id="note-protein" style="display: none;">Tanpa tempe tahu</li>
+                            <li id="note-serat-lambung" style="display: none;">Tanpa buah</li>
+                        </ul>
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
+
+        <div class="signature-area">
+            <div class="signature-box">
+                <p>Disiapkan Oleh,<br>(Ahli Gizi)</p>
+                <div class="signature-space"></div>
+                <div class="signature-name"></div>
+                <p>NIP/SIP.</p>
+            </div>
+           
+        </div>
+    </div>
+
+    <script>
+        function applyLogic() {
+            const bentukMakanan = document.querySelector('input[name="bentuk_makanan"]:checked').value;
+
+            const wraps = {
+                bebas: document.getElementById('wrap-diet-bebas'),
+                lunak: document.getElementById('wrap-diet-lunak'),
+                gula: document.getElementById('wrap-diet-rendah-gula'),
+                garam: document.getElementById('wrap-diet-rendah-garam'),
+                protein: document.getElementById('wrap-diet-rendah-protein'),
+                serat: document.getElementById('wrap-diet-rendah-serat'),
+                lambung: document.getElementById('wrap-diet-lambung'),
+                tktp: document.getElementById('wrap-diet-tktp'),
+                susu: document.getElementById('wrap-diet-susu'),
+                cairBebas: document.getElementById('wrap-diet-cair-bebas')
+            };
+
+            // Gunakan 'flex' karena kita menggunakan class .diet-option dengan display: flex
+            Object.values(wraps).forEach(wrap => {
+                wrap.style.display = 'flex';
+            });
+
+            if (bentukMakanan === 'saring') {
+                Object.values(wraps).forEach(wrap => {
+                    wrap.style.display = 'none';
+                    wrap.querySelector('input').checked = false;
+                });
+            } else if (bentukMakanan === 'cair') {
+                Object.keys(wraps).forEach(key => {
+                    if (key !== 'susu' && key !== 'cairBebas') {
+                        wraps[key].style.display = 'none';
+                        wraps[key].querySelector('input').checked = false;
+                    }
+                });
+            } else if (bentukMakanan === 'lunak') {
+                wraps.bebas.style.display = 'none';
+                wraps.bebas.querySelector('input').checked = false;
+            }
+
+            const isDietLunak = document.getElementById('diet-lunak').checked;
+            const isDietRendahProtein = document.getElementById('diet-rendah-protein').checked;
+            const isDietRendahSerat = document.getElementById('diet-rendah-serat').checked;
+            const isDietLambung = document.getElementById('diet-lambung').checked;
+            const isDietSusu = document.getElementById('diet-susu').checked;
+            const isDietCairBebas = document.getElementById('diet-cair-bebas').checked;
+
+            const rowKarbo = document.getElementById('row-karbo');
+            const rowLauk = document.getElementById('row-lauk');
+            const rowCairan = document.getElementById('row-cairan');
+            const rowSaring = document.getElementById('row-saring');
+
+            rowKarbo.style.display = 'table-row';
+            rowLauk.style.display = 'table-row';
+            rowCairan.style.display = 'none';
+            rowSaring.style.display = 'none';
+
+            if (bentukMakanan === 'saring') {
+                rowKarbo.style.display = 'none';
+                rowLauk.style.display = 'none';
+                rowCairan.style.display = 'none';
+                rowSaring.style.display = 'table-row';
+            }
+            else if (isDietSusu || isDietCairBebas) {
+                rowKarbo.style.display = 'none';
+                rowLauk.style.display = 'none';
+                rowCairan.style.display = 'table-row';
+            }
+
+            const karboKerasItems = document.querySelectorAll('.karbo-keras');
+            karboKerasItems.forEach(item => {
+                const checkbox = item.querySelector('input');
+                if (isDietLunak || bentukMakanan === 'lunak') {
+                    item.style.display = 'none';
+                    checkbox.checked = false;
+                } else {
+                    item.style.display = 'flex';
+                }
+            });
+
+            const rowCatatanSistem = document.getElementById('row-catatan-sistem');
+            const noteProtein = document.getElementById('note-protein');
+            const noteSeratLambung = document.getElementById('note-serat-lambung');
+            let showRowCatatan = false;
+
+            if (isDietRendahProtein) {
+                noteProtein.style.display = 'list-item';
+                showRowCatatan = true;
+            } else {
+                noteProtein.style.display = 'none';
+            }
+
+            if (isDietRendahSerat || isDietLambung) {
+                noteSeratLambung.style.display = 'list-item';
+                showRowCatatan = true;
+            } else {
+                noteSeratLambung.style.display = 'none';
+            }
+
+            rowCatatanSistem.style.display = showRowCatatan ? 'table-row' : 'none';
+
+            const menuDietSusu = document.querySelectorAll('.menu-diet-susu');
+            const menuDietCairBebas = document.querySelectorAll('.menu-diet-cair-bebas');
+
+            menuDietSusu.forEach(item => {
+                item.style.display = isDietSusu ? 'block' : 'none';
+                if (!isDietSusu) {
+                    const checkboxes = item.querySelectorAll('input[type="checkbox"]');
+                    checkboxes.forEach(cb => cb.checked = false);
+                }
+            });
+
+            menuDietCairBebas.forEach(item => {
+                item.style.display = isDietCairBebas ? 'block' : 'none';
+                if (!isDietCairBebas) {
+                    const checkboxes = item.querySelectorAll('input[type="checkbox"]');
+                    checkboxes.forEach(cb => cb.checked = false);
+                }
+            });
+        }
+
+        function toggleInputTambahan() {
+            const rbTambahan = document.getElementById('lauk-tambahan');
+            const inputKeterangan = document.getElementById('input-keterangan');
+
+            if (rbTambahan.checked) {
+                inputKeterangan.style.display = 'inline-block';
+                inputKeterangan.focus();
+            } else {
+                inputKeterangan.style.display = 'none';
+                inputKeterangan.value = '';
+            }
+        }
+
+        window.onload = function () {
+            applyLogic();
+        };
+
+        function exportPDF() {
+            const element = document.getElementById('document-container');
+            const opt = {
+                margin: [10, 10, 10, 10],
+                filename: 'Form_Permintaan_Makanan_Pasien.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+    </script>
+</body>
+
+</html>
